@@ -1,0 +1,20 @@
+package be.bstorm.akimts.reservaroom.controller;
+
+import be.bstorm.akimts.reservaroom.models.dto.ErrorDTO;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponseException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+@ControllerAdvice
+public class ControllerAdvisor extends ResponseEntityExceptionHandler {
+
+//    @Override
+//    protected ResponseEntity<Object> handleErrorResponseException(ErrorResponseException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+//        return ResponseEntity.status(ex.getStatusCode())
+//                .body( ex.getMessage() );
+//    }
+
+}
