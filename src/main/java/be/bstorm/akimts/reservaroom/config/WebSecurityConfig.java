@@ -1,15 +1,19 @@
 package be.bstorm.akimts.reservaroom.config;
 
+import be.bstorm.akimts.reservaroom.models.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Scanner;
 
@@ -70,13 +74,15 @@ public class WebSecurityConfig {
      * @return a configured SecurityFilterChain
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter filter) throws Exception {
 
         http.csrf().disable();
 
-//        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        http.httpBasic();
+        http.addFilterBefore( filter, UsernamePasswordAuthenticationFilter.class);
+
+//        http.httpBasic(); // inutile car sécurité via JWT
 
         http.authorizeHttpRequests( registry -> {
 //            registry.requestMatchers(request -> request.getRequestURI().length() > 500).denyAll()
@@ -84,10 +90,16 @@ public class WebSecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/rooms/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/booking/**").authenticated()
                     .requestMatchers(HttpMethod.PATCH, "/booking/{id:[0-9]+}/*").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                     .anyRequest().hasAnyRole("AUTRE", "ADMIN");
         });
 
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
     }
 
     @Bean
