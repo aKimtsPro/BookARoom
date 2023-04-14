@@ -25,8 +25,13 @@ public class BookingController {
     }
 
 
-    @PatchMapping(value = "/{id:[0-9]+}/update", params = "status")
-    public void changeStatus(@PathVariable long id, @RequestParam BookingStatus status){
-        bookingService.updateStatus(id, status);
+    @PatchMapping(value = "/{id:[0-9]+}/accept")
+    public void acceptBooking(@PathVariable long id){
+        bookingService.updateStatus(id, BookingStatus.ACCEPTED);
+    }
+
+    @PatchMapping(value = "/{id:[0-9]+}/refuse")
+    public void refuseBooking(@PathVariable long id){
+        bookingService.updateStatus(id, BookingStatus.REFUSED);
     }
 }
