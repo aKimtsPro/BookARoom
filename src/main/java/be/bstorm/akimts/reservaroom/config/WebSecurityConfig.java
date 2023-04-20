@@ -91,7 +91,7 @@ public class WebSecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/booking/**").authenticated()
                     .requestMatchers(HttpMethod.PATCH, "/booking/{id:[0-9]+}/*").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                    .anyRequest().hasAnyRole("AUTRE", "ADMIN");
+                    .anyRequest().permitAll();
         });
 
         return http.build();
