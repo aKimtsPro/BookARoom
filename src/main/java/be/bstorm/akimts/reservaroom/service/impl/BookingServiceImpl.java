@@ -1,6 +1,7 @@
 package be.bstorm.akimts.reservaroom.service.impl;
 
-import be.bstorm.akimts.reservaroom.exceptions.ResourceNotFound;
+import be.bstorm.akimts.reservaroom.exceptions.BookingConflictException;
+import be.bstorm.akimts.reservaroom.exceptions.ResourceNotFoundException;
 import be.bstorm.akimts.reservaroom.models.BookingStatus;
 import be.bstorm.akimts.reservaroom.models.entity.Booking;
 import be.bstorm.akimts.reservaroom.models.entity.Room;
@@ -35,16 +36,16 @@ public class BookingServiceImpl implements BookingService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "start should be before end");
 
         if( bookingRepository.existsWithConflict(form.getRoomId(), form.getDate(), form.getBeginsAt(), form.getEndsAt()) )
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "room is already used at that time"); //
+            throw new BookingConflictException();
 
         booking.setBookedBy(
                 userRepository.findById(form.getUserId()).
-                        orElseThrow(() -> new ResourceNotFound(User.class))
+                        orElseThrow(() -> new ResourceNotFoundException(User.class))
         ) ;
 
         booking.setRoom(
                 roomRepository.findById(form.getRoomId())
-                        .orElseThrow(() -> new ResourceNotFound(Room.class))
+                        .orElseThrow(() -> new ResourceNotFoundException(Room.class))
         );
 
         booking.setStatus(BookingStatus.PENDING);
@@ -55,7 +56,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public void updateStatus(long id, BookingStatus status) {
         Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFound(Booking.class));
+                .orElseThrow(() -> new ResourceNotFoundException(Booking.class));
 
         if( status == BookingStatus.PENDING )
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "cannot change a status to PENDING");
